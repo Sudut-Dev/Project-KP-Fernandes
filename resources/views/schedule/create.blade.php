@@ -1,0 +1,269 @@
+{{-- Include header --}}
+@include('layout.header')
+
+<!--Start content-->
+<main class="page-content">
+    <!--breadcrumb-->
+    <section>
+        <div class="row">
+            <div class="col">
+                <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+                    <a href="{{ route('schedule.index') }}" class="d-inline-block" data-bs-toggle="tooltip"
+                        data-bs-placement="bottom" title="Kembali">
+                        <i class="bi bi-chevron-left text-dark"></i>
+                    </a>
+                    <div class="breadcrumb-title mx-2 pe-3">JADWAL</div>
+                    <div class="ps-3">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0 p-0">
+                                <li class="breadcrumb-item"><i class="bx bx-home-alt"></i>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">{{ $title ??= 'Title' }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--end breadcrumb-->
+
+    {{-- Alert set --}}
+    @include('components.alert-set')
+
+    <div class="row">
+        <div class="col-12">
+            {{-- Form pengajuan --}}
+            <section>
+                <div class="card">
+                    <div class="card-header bg-light">
+                        Form Tambah Jadwal
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('schedule.store') }}" method="POST">
+                            @csrf
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        {{-- Date --}}
+                                        <div class="mb-4">
+                                            <label class="mb-2" for="date">Tanggal :</label>
+                                            <div class="input-group mb-1">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-calendar"></i>
+                                                </span>
+                                                <input name="date" id="date" type="date"
+                                                    class="form-control
+                                            @error('date') is-invalid @enderror"
+                                                    aria-label="date"
+                                                    value="{{ old('date', now()->format('Y-m-d')) }}"
+                                                    onchange="validateDate()">
+                                            </div>
+                                            @error('date')
+                                                <span class="text-danger position-absolute d-block">
+                                                    <small>
+                                                        {{ $message }}
+                                                    </small>
+                                                </span>
+                                            @enderror
+                                            <span id="msg-date-invalid" class="text-danger d-none mt-1">
+                                                <small>
+                                                    Tanggal yang dipilih tidak valid.
+                                                </small>
+                                            </span>
+                                        </div>
+
+                                        <div class="row mb-4">
+                                            <div class="col-6">
+                                                {{-- Start --}}
+                                                <div>
+                                                    <label class="mb-2" for="start">Waktu Mulai :</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">
+                                                            <i class="bi bi-clock"></i>
+                                                        </span>
+                                                        <input name="start" id="start" type="time"
+                                                            class="form-control
+                                                    @error('start') is-invalid @enderror"
+                                                            aria-label="start"
+                                                            value="{{ old('start', now()->format('Y-m-d')) }}"
+                                                            onchange="validateHour()">
+                                                    </div>
+                                                    @error('start')
+                                                        <span class="text-danger position-absolute d-block">
+                                                            <small>
+                                                                {{ $message }}
+                                                            </small>
+                                                        </span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                {{-- End --}}
+                                                <div>
+                                                    <label class="mb-2" for="end">Waktu Selesai :</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">
+                                                            <i class="bi bi-clock-history"></i>
+                                                        </span>
+                                                        <input name="end" id="end" type="time"
+                                                            class="form-control
+                                                    @error('end') is-invalid @enderror"
+                                                            aria-label="end" value="{{ old('end') }}"
+                                                            onchange="validateHour()">
+                                                    </div>
+                                                    @error('end')
+                                                        <span class="text-danger position-absolute d-block">
+                                                            <small>
+                                                                {{ $message }}
+                                                            </small>
+                                                        </span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <span id="msg-time-invalid"
+                                                class="text-danger {{ session('invalidTime') ? 'd-block' : 'd-none' }} mt-1">
+                                                <small>
+                                                    Waktu yang dipilih tidak valid.
+                                                </small>
+                                            </span>
+                                        </div>
+
+                                        {{-- no siltik --}}
+
+                                        <div class="mb-4">
+                                            <label class="mb-2" for="description">No_Siltik :</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-person"></i>
+                                                </span>
+                                                <input name="description" id="description" type="text" class="form-control @error('description') is-invalid @enderror"
+                                                    placeholder="Nomor Siltik" aria-label="description" value="{{ old('description') }}">
+                                                </input>
+                                            </div>
+                                            @error('description')
+                                                <span class="text-danger position-absolute d-block">
+                                                    <small>
+                                                        {{ $message }}
+                                                    </small>
+                                                </span>
+                                            @enderror
+                                        </div>
+
+
+                                        {{-- Ruangan --}}
+                                        {{-- <div class="mb-4">
+                                            <label class="mb-2" for="room">Pilih Ruangan :</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-building"></i>
+                                                </span>
+                                                <select name="room" id="room"
+                                                    class="form-select
+                                                    @error('room') is-invalid @enderror"
+                                                    required multiple>
+                                                    <option selected hidden>Pilih ruangan</option>
+                                                    @foreach ($rooms as $room)
+                                                        @if (old('room') && old('room') == $room->id)
+                                                            <option selected value="{{ $room->id }}">
+                                                                {{ $room->name }}
+                                                            </option>
+                                                        @else
+                                                            <option value="{{ $room->id }}">
+                                                                {{ $room->name }}
+                                                            </option>
+                                                        @endif
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            @error('room')
+                                                <span class="text-danger position-absolute d-block">
+                                                    <small>
+                                                        {{ $message }}
+                                                    </small>
+                                                </span>
+                                            @enderror
+                                        </div> --}}
+
+                                        <div class="mb-12">
+                                            <label class="mb-2" for="role">Pilih Physical Room:</label>
+                                            <div class="input-group">
+                                                <select name="room[]" multiple id="room" class="js-example-basic-multiple form-select @error('room') is-invalid @enderror">
+                                                    <option value="">-</option>
+                                                    @foreach ($rooms as $room)
+                                                        <option value="{{ $room->id }}" {{ (collect(old('room'))->contains($room->id)) ? 'selected' : '' }}>{{ $room->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('room')
+                                                    <span class="invalid-feedback d-block">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-12 mt-4">
+                                            <label class="mb-2" for="role">Pilih Virtual Room:</label>
+                                            <div class="input-group">
+                                                <select name="vroom[]" multiple id="vroom" class="js-example-basic-multiple1 form-select @error('vroom') is-invalid @enderror">
+                                                    <option value="">-</option>
+                                                    @foreach ($vrooms as $vroom)
+                                                        <option value="{{ $vroom->id }}" {{ (collect(old('vroom'))->contains($vroom->id)) ? 'selected' : '' }}>{{ $vroom->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('vroom')
+                                                    <span class="invalid-feedback d-block">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        {{-- Peminjam --}}
+                                        <div class="mb-4 mt-4">
+                                            <label class="mb-2" for="role">Nama Peminjam :</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-building"></i>
+                                                </span>
+                                                <input name="user" id="user" type="text" class="form-control @error('user') is-invalid @enderror"
+                                                    placeholder="Isi Nama Peminjam" aria-label="user" value="{{ old('user') }}">
+                                                </input>
+                                            </div>
+                                            @error('user')
+                                                <span class="text-danger position-absolute d-block">
+                                                    <small>
+                                                        {{ $message }}
+                                                    </small>
+                                                </span>
+                                            @enderror
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row ">
+                                    <div class="col-12 d-flex justify-content-center">
+                                        <button id="btn-request-submit"
+                                            class="btn btn-primary my-3 mt-3 px-5">Simpan</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+</main>
+<!--End Page Main-->
+{{-- Include footer --}}
+@include('layout.footer')
+
+<script>
+    $(document).ready(function() {
+    $('.js-example-basic-multiple').select2();
+    $('.js-example-basic-multiple1').select2();
+});
+</script>
